@@ -12,7 +12,7 @@ The Hue plugin is used to control Hue lights.
 Dependencies
 ============
 
-N/A
+pip install phue
 
 Plugin configuration
 ====================

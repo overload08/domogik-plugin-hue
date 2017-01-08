@@ -38,6 +38,7 @@ Philips Hue Manager
 try:
     import threading
     import traceback
+    from phue import Bridge
 
 
 class HueManager(Plugin):
@@ -63,6 +64,7 @@ class HueManager(Plugin):
             except:
                 self.log.error(traceback.format_exc())
         self.add_stop_cb(self.managerClients.stop)
+        b = Bridge(self.get_config("ip_bridge"))
         self.log.info("Plugin ready :)")
         if self.get_config("send_at_start") : self.managerClients.HueClientsConnection()
         self.ready()
