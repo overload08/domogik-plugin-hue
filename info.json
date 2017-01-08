@@ -13,7 +13,7 @@
     },
     "configuration": [
         {   
-            "default": "fr-FR",
+            "default": "",
             "description": "IP of Hue bridge",
             "key": "ip_bridge",
             "name" : "Bridge IP",
