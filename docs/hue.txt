@@ -1,0 +1,38 @@
+.. _index:
+
+===========
+Plugin Hue
+===========
+
+Purpose
+=======
+
+The Hue plugin is used to control Hue lights.
+
+Dependencies
+============
+
+N/A
+
+Plugin configuration
+====================
+
+IP address of Hue Bridge
+
+Create the domogik devices
+==========================
+
+Domogik device type : hue.light
+-------------------------------
+
+
+Start the plugin
+================
+
+You can now start the plugin (start button) and use the created domogik devices.
+
+Set up your widgets on the user interface
+=========================================
+
+You can now place the widgets of your devices features on the user interface.
+
