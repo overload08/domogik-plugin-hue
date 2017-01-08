@@ -1,0 +1,29 @@
+{
+    "json_version" : 2,
+    "identity": {
+        "author": "OverLoad",
+        "author_email": "y.poilvert at geekinfo.fr",
+        "tags": ["interface", "light", "hue"],
+        "dependencies": [],
+        "description": "Control Hue lights",
+        "domogik_min_version": "0.4.1",
+        "name": "hue",
+        "type": "interface",
+        "version": "1.0"
+    },
+    "configuration": [
+        {   
+            "default": "fr-FR",
+            "description": "IP of Hue bridge",
+            "key": "ip_bridge",
+            "name" : "Bridge IP",
+            "required": true,
+            "type": "string"
+        }
+    ],
+    "device_types": {},
+    "sensors": {},
+    "xpl_stats": {},
+    "commands": {},
+    "xpl_commands": {}
+}
