@@ -35,11 +35,10 @@ Philips Hue Manager
 @organization: Domogik
 """
 
-try:
-    import threading
-    import traceback
-    from domogik.interface.common.interface import Interface
-    from phue import Bridge
+import threading
+import traceback
+from domogik.interface.common.interface import Interface
+from phue import Bridge
 
 
 class HueManager(Interface):
