@@ -37,16 +37,17 @@ Philips Hue Manager
 
 import threading
 import traceback
-from domogik.interface.common.interface import Interface
+from domogik.common.plugin import Plugin
+from domogikmq.message import MQMessage
 from phue import Bridge
 
 
-class HueManager(Interface):
+class HueManager(Plugin):
 
     def __init__(self):
         """ Init plugin
         """
-        Interface.__init__(self, name='hue')
+        Plugin.__init__(self, name='hue')
         if not self.check_configured():
             return
         b = Bridge(self.get_config("ip_bridge"))
