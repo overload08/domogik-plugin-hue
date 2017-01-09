@@ -1,29 +1,78 @@
 {
-    "json_version" : 2,
-    "identity": {
-        "author": "OverLoad",
-        "author_email": "y.poilvert at geekinfo.fr",
-        "tags": ["plugin", "light", "hue"],
-        "dependencies": [],
-        "description": "Control Hue lights",
-        "domogik_min_version": "0.4.1",
-        "name": "hue",
-        "type": "plugin",
-        "version": "1.0"
-    },
-    "configuration": [
-        {   
-            "default": "",
-            "description": "IP of Hue bridge",
-            "key": "ip_bridge",
-            "name" : "Bridge IP",
-            "required": true,
-            "type": "string"
-        }
-    ],
-    "device_types": {},
-    "sensors": {},
-    "xpl_stats": {},
-    "commands": {},
-    "xpl_commands": {}
+	"json_version": 2,
+	"identity": {
+		"author": "OverLoad",
+		"author_email": "y.poilvert at geekinfo.fr",
+		"tags": ["plugin", "light", "hue"],
+		"dependencies": [],
+		"description": "Control Hue lights",
+		"domogik_min_version": "0.4.1",
+		"name": "hue",
+		"type": "plugin",
+		"version": "1.0"
+	},
+	"configuration": [{
+		"default": "",
+		"description": "IP of Hue bridge",
+		"key": "ip_bridge",
+		"name": "Bridge IP",
+		"required": true,
+		"type": "string"
+	}],
+	"device_types": {
+		"hue.white": {
+			"description": "White",
+			"id": "hue.white",
+			"name": "White",
+			"commands": [],
+			"sensors": [],
+			"parameters": [{
+				"key": "Device",
+				"xpl": false,
+				"description": "Device ID",
+				"type": "integer"
+			}]
+		}
+	},
+	"sensors": {},
+	"xpl_stats": {},
+	"commands": {
+		"set_brightness": {
+			"name": "Set brightness",
+			"return_confirmation": true,
+			"parameters": [{
+				"key": "current",
+				"data_type": "DT_Scaling",
+				"conversion": "conv_256"
+			}]
+		},
+		"set_on": {
+			"name": "Set ON",
+			"return_confirmation": true,
+			"parameters": [{
+				"key": "current",
+				"data_type": "DT_Switch",
+				"conversion": ""
+			}]
+		},
+		"get_light_status": {
+			"name": "Get light status",
+			"return_confirmation": true,
+			"parameters": [{
+				"key": "current",
+				"data_type": "DT_Bool",
+				"conversion": ""
+			}]
+		},
+		"get_brightness_value": {
+			"name": "Set ON",
+			"return_confirmation": true,
+			"parameters": [{
+				"key": "current",
+				"data_type": "DT_Scaling",
+				"conversion": "conv_100"
+			}]
+		}
+	},
+	"xpl_commands": {}
 }
