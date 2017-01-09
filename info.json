@@ -3,12 +3,12 @@
     "identity": {
         "author": "OverLoad",
         "author_email": "y.poilvert at geekinfo.fr",
-        "tags": ["interface", "light", "hue"],
+        "tags": ["plugin", "light", "hue"],
         "dependencies": [],
         "description": "Control Hue lights",
         "domogik_min_version": "0.4.1",
         "name": "hue",
-        "type": "interface",
+        "type": "plugin",
         "version": "1.0"
     },
     "configuration": [
