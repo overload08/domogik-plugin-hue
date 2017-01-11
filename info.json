@@ -24,8 +24,11 @@
 			"description": "White",
 			"id": "hue.white",
 			"name": "White",
-			"commands": [],
-			"sensors": [],
+			"commands": [
+				"set_brightness",
+				"set_on"
+			],
+			"sensors": ["light", "brightness"],
 			"parameters": [{
 				"key": "Device",
 				"xpl": false,
@@ -34,7 +37,36 @@
 			}]
 		}
 	},
-	"sensors": {},
+	"sensors": {
+		"light": {
+			"name": "Light status",
+			"incremental": false,
+			"data_type": "DT_Switch",
+			"conversion": "",
+			"timeout": 600,
+			"history": {
+				"store": true,
+				"duplicate": false,
+				"max": 0,
+				"expire": 0,
+				"round_value": 0
+			}
+		},
+		"brightness": {
+			"name": "Brightness",
+			"incremental": false,
+			"data_type": "DT_Scaling",
+			"conversion": "",
+			"timeout": 600,
+			"history": {
+				"store": true,
+				"duplicate": false,
+				"max": 0,
+				"expire": 0,
+				"round_value": 0
+			}
+		}
+	},
 	"xpl_stats": {},
 	"commands": {
 		"set_brightness": {
@@ -60,7 +92,7 @@
 			"return_confirmation": true,
 			"parameters": [{
 				"key": "current",
-				"data_type": "DT_Bool",
+				"data_type": "DT_Switch",
 				"conversion": ""
 			}]
 		},
