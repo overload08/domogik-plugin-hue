@@ -75,7 +75,7 @@
 			"parameters": [{
 				"key": "current",
 				"data_type": "DT_Scaling",
-				"conversion": "conv_256"
+				"conversion": ""
 			}]
 		},
 		"set_on": {

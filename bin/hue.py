@@ -42,6 +42,20 @@ from domogikmq.message import MQMessage
 from phue import Bridge
 import pprint
 
+def from_DT_Switch_to_off_on(x):
+    # 0 - 1 translated to off / on
+    if str(x) == "0":
+        return False
+    else:
+        return True
+
+def from_off_on_to_DT_Switch(x):
+    # off - on translated to 0 - 1
+    if x == False:
+        return 0
+    else:
+        return 1
+
 class HueManager(Plugin):
 
     def __init__(self):
@@ -66,7 +80,7 @@ class HueManager(Plugin):
 	    brightness = b.get_light(self.device_list[device_id]['address'],'bri')/254*100
 	    self.log.info(u"==> Device '%s' (id:%s), Sensor: '%s'" % (device_name, device_id, self.sensors[device_id]))
 	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_name, status, brightness))
-	    data[self.sensors[device_id]['light']] = status
+	    data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
 	    data[self.sensors[device_id]['brightness']] = brightness
             try:
                 self._pub.send_event('client.sensor', data)
@@ -99,28 +113,31 @@ class HueManager(Plugin):
 	    print command
 	    if command == "set_brightness":
     	        if data['current'] == '0':
-                    sensors[self.sensors[device_id]['light']] = 0
+                    sensors[self.sensors[device_id]['light']] = "0"
 	        else:
-		    sensors[self.sensors[device_id]['light']] = 1
+		    sensors[self.sensors[device_id]['light']] = "1"
                 sensors[self.sensors[device_id]['brightness']] = data['current']
                 new_value = int(data['current']) * 254/100
-                status = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
-	    elif command == "set_on":
-                if data['current'] == '0':
-		    sensors[self.sensors[device_id]['light']] = 'False'
+                set = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
+		if set.find("success") != -1:
+		    status = True
 		else:
-		    sensors[self.sensors[device_id]['light']] = 'True'
-                sensors[self.sensors[device_id]['brightness']] = data['current']
-		status = b.set_light(self.device_list[device_id]['address'], 'on', sensors[self.sensors[device_id]['light']])
+		    status = False
+	    elif command == "set_on":
+	        sensors[self.sensors[device_id]['light']] = data['current']
             try:
                 self._pub.send_event('client.sensor', sensors)
             except:
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                 pass
-			
-	    new_value = int(data['current']) * 254/100	
-	    status = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
+	    set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
+	    pprint.pprint(set)
+	    if ("success" in set):
+		if (set.index("success")) != -1:
+		    status = True
+	        else:
+		    status = False
             
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name) ;
