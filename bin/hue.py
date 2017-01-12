@@ -95,10 +95,9 @@ class HueManager(Plugin):
             b.connect()
 	    data = {}
 	    status = b.get_light(address,'on')
-	    brightness = b.get_light(address,'bri')/254*100
+	    print b.get_light(address,'bri')
+	    brightness = b.get_light(address,'bri')/254.00*100.00
 	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_id, status, brightness))
-	    print status
-	    print brightness
             data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
             try:
@@ -135,13 +134,22 @@ class HueManager(Plugin):
                     sensors[self.sensors[device_id]['light']] = "0"
 	        else:
 		    sensors[self.sensors[device_id]['light']] = "1"
-                sensors[self.sensors[device_id]['brightness']] = data['current']
+		sensors[self.sensors[device_id]['brightness']] = data['current']
+                try:
+                    self._pub.send_event('client.sensor', sensors)
+                except:
+                    # We ignore the message if some values are not correct
+                    self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
+                    pass
+
                 new_value = int(data['current']) * 254/100
+		self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['current'], new_value))
                 set = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
-		if set.find("success") != -1:
-		    status = True
-		else:
-		    status = False
+		if ("success" in set):
+    		    if (set.index("success")) != -1:
+		        status = True
+		    else:
+		        status = False
 	    elif command == "set_on":
 	        sensors[self.sensors[device_id]['light']] = data['current']
             try:
@@ -151,7 +159,6 @@ class HueManager(Plugin):
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                 pass
 	    set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
-	    pprint.pprint(set)
 	    if ("success" in set):
 		if (set.index("success")) != -1:
 		    status = True
