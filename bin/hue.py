@@ -41,6 +41,7 @@ from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
 from phue import Bridge
 import pprint
+import time
 
 def from_DT_Switch_to_off_on(x):
     # 0 - 1 translated to off / on
@@ -71,24 +72,42 @@ class HueManager(Plugin):
 	b.connect()
 	data = {}
 	self.device_list = {}
+	huethreads = {}
 	for a_device in self.devices:
 	    device_name = a_device["name"]
 	    device_id = a_device["id"]
 	    sensor_address = self.get_parameter(a_device, "Device")
 	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
-	    status = b.get_light(self.device_list[device_id]['address'],'on')
-	    brightness = b.get_light(self.device_list[device_id]['address'],'bri')/254*100
-	    self.log.info(u"==> Device '%s' (id:%s), Sensor: '%s'" % (device_name, device_id, self.sensors[device_id]))
-	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_name, status, brightness))
-	    data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
-	    data[self.sensors[device_id]['brightness']] = brightness
+#	    status = b.get_light(self.device_list[device_id]['address'],'on')
+#	    brightness = b.get_light(self.device_list[device_id]['address'],'bri')/254*100
+#	    self.log.info(u"==> Device '%s' (id:%s), Sensor: '%s'" % (device_name, device_id, self.sensors[device_id]))
+#	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_name, status, brightness))
+            thr_name = "dev_{0}".format(a_device['id'])
+            huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.get_config("ip_bridge")),{})
+	    print "Starting thread" + thr_name
+            huethreads[thr_name].start()
+            self.register_thread(huethreads[thr_name])
+        self.ready()
+
+    def get_status(self, log, device_id, address,bridge_ip):
+	while not self._stop.isSet():
+            b = Bridge(bridge_ip)
+            b.connect()
+	    data = {}
+	    status = b.get_light(address,'on')
+	    brightness = b.get_light(address,'bri')/254*100
+	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_id, status, brightness))
+	    print status
+	    print brightness
+            data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
+            data[self.sensors[device_id]['brightness']] = brightness
             try:
                 self._pub.send_event('client.sensor', data)
             except:
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                 pass
-        self.ready()
+	time.sleep(1)
 
     def on_mdp_request(self, msg):
 	Plugin.on_mdp_request(self, msg)
