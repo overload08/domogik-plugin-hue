@@ -68,7 +68,10 @@ class HueManager(Plugin):
 	self.sensors = self.get_sensors(self.devices)
 	self.log.info(u"==> commands:   %s" % format(self.commands))
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
-        b = Bridge(self.get_config("ip_bridge"))
+	try:
+            b = Bridge(self.get_config("ip_bridge"))
+	except:
+	    self.log.error(traceback.format_exc())
 	b.connect()
 	data = {}
 	self.device_list = {}
@@ -83,7 +86,13 @@ class HueManager(Plugin):
 	    print "Starting thread" + thr_name
             huethreads[thr_name].start()
             self.register_thread(huethreads[thr_name])
+	self.register_cb_update_devices(myHandleDeviceUpdate)
         self.ready()
+
+    def myHandleDeviceUpdate(self, devices):
+        for hardDevice in self._myHardDevices:
+            hardDevice.refreshAllDmgDevice(devices)
+        self.log.info(u"All hard devives are updated from domogik devices")
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
