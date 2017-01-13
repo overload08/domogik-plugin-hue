@@ -78,10 +78,6 @@ class HueManager(Plugin):
 	    device_id = a_device["id"]
 	    sensor_address = self.get_parameter(a_device, "Device")
 	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
-#	    status = b.get_light(self.device_list[device_id]['address'],'on')
-#	    brightness = b.get_light(self.device_list[device_id]['address'],'bri')/254*100
-#	    self.log.info(u"==> Device '%s' (id:%s), Sensor: '%s'" % (device_name, device_id, self.sensors[device_id]))
-#	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_name, status, brightness))
             thr_name = "dev_{0}".format(a_device['id'])
             huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.get_config("ip_bridge")),{})
 	    print "Starting thread" + thr_name
@@ -95,11 +91,12 @@ class HueManager(Plugin):
             b.connect()
 	    data = {}
 	    status = b.get_light(address,'on')
-	    print b.get_light(address,'bri')
 	    brightness = b.get_light(address,'bri')/254.00*100.00
-	    self.log.info(u"==> Device '%s' state '%s', brightness '%s'" % (device_id, status, brightness))
+	    reachable = b.get_light(address,'reachable')
+	    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
             data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
+	    data[self.sensors[device_id]['reachable']] = reachable
             try:
                 self._pub.send_event('client.sensor', data)
             except:
@@ -128,7 +125,6 @@ class HueManager(Plugin):
 	    device_name = self.device_list[device_id]["name"]
 	    self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
 	    command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
-	    print command
 	    if command == "set_brightness":
     	        if data['current'] == '0':
                     sensors[self.sensors[device_id]['light']] = "0"

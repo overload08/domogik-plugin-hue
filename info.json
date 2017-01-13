@@ -65,7 +65,21 @@
 				"expire": 0,
 				"round_value": 0
 			}
-		}
+		},
+                "reachable": {
+                        "name": "Reachable",
+                        "incremental": false,
+                        "data_type": "DT_Bool",
+                        "conversion": "",
+                        "timeout": 600,
+                        "history": {
+                                "store": true,
+                                "duplicate": false,
+                                "max": 0,
+                                "expire": 0,
+                                "round_value": 0
+                        }
+                }
 	},
 	"xpl_stats": {},
 	"commands": {
