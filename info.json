@@ -28,7 +28,7 @@
 				"set_brightness",
 				"set_on"
 			],
-			"sensors": ["light", "brightness"],
+			"sensors": ["light", "brightness", "reachable"],
 			"parameters": [{
 				"key": "Device",
 				"xpl": false,
