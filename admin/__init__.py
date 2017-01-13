@@ -41,7 +41,9 @@ def index(client_id):
             clientid = client_id,
             client_detail = detail,
             mactive="clients",
-            active = 'advanced')
+            active = 'advanced',
+	    hue = list_lights())
+
     except TemplateNotFound:
         abort(404)
 
