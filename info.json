@@ -69,7 +69,7 @@
                 "reachable": {
                         "name": "Reachable",
                         "incremental": false,
-                        "data_type": "DT_Bool",
+                        "data_type": "DT_Enable",
                         "conversion": "",
                         "timeout": 600,
                         "history": {
