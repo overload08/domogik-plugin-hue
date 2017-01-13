@@ -1,0 +1,10 @@
+{% extends theme("base/base.html") %}
+{% import theme("base/wtf.html") as wtf %}
+
+{% block content %}
+{% include theme("client_menu.html") %}
+<div class="container">
+<h2>{% trans %}Result of the light scan{% endtrans %}</H2>
+<pre>{{ hue }}</pre>
+</div>
+{% endblock %}
