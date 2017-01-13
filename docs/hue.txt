@@ -19,12 +19,16 @@ Plugin configuration
 
 IP address of Hue Bridge
 
+Before launch the plugin
+========================
+
+Before start Hue plugin, press association button on your bridge and go to Admin -> Plugin Hue -> Advanced
+If you see your lamps, association is ok!
+
 Create the domogik devices
 ==========================
 
-Domogik device type : hue.light
--------------------------------
-
+Help you with Advanced page to create all your devices. You need to write name and light ID.
 
 Start the plugin
 ================
