@@ -42,6 +42,7 @@ from domogikmq.message import MQMessage
 from phue import Bridge
 import pprint
 import time
+import os
 
 def from_DT_Switch_to_off_on(x):
     # 0 - 1 translated to off / on
@@ -63,6 +64,15 @@ class HueManager(Plugin):
         """ Init plugin
         """
         Plugin.__init__(self, name='hue')
+        if not os.path.exists(str(self.get_data_files_directory())):
+            self.log.info(u"Directory data not exist, trying create : %s", str(self.get_data_files_directory()))
+            try:
+                os.mkdir(str(self.get_data_files_directory()))
+                self.log.info(u"Hue data directory created : %s" % str(self.get_data_files_directory()))
+            except Exception as e:
+                self.log.error(e.message)
+        if not os.access(str(self.get_data_files_directory()), os.W_OK):
+            self.log.error("No write access on data directory : %s" % (str(self.get_data_files_directory())))
 	self.devices = self.get_device_list(quit_if_no_device=True)
 	self.commands = self.get_commands(self.devices)
 	self.sensors = self.get_sensors(self.devices)
