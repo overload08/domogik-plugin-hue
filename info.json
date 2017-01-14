@@ -100,24 +100,6 @@
 				"data_type": "DT_Switch",
 				"conversion": ""
 			}]
-		},
-		"get_light_status": {
-			"name": "Get light status",
-			"return_confirmation": true,
-			"parameters": [{
-				"key": "current",
-				"data_type": "DT_Switch",
-				"conversion": ""
-			}]
-		},
-		"get_brightness_value": {
-			"name": "Set ON",
-			"return_confirmation": true,
-			"parameters": [{
-				"key": "current",
-				"data_type": "DT_Scaling",
-				"conversion": "conv_100"
-			}]
 		}
 	},
 	"xpl_commands": {}

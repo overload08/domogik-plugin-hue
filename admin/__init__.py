@@ -14,8 +14,8 @@ import subprocess
 
 
 ### package specific functions
-def list_lights():
-    b=Bridge('10.0.0.129')
+def list_lights(ip):
+    b=Bridge()
     b.connect()
     lights = b.get_light()
     output = ""
@@ -45,7 +45,7 @@ def index(client_id):
             client_detail = detail,
             mactive="clients",
             active = 'advanced',
-	    hue = list_lights())
+	    hue = list_lights(detail['data']['configuration'][1]['value']))
 
     except TemplateNotFound:
         abort(404)
