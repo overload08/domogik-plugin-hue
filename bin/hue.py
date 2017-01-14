@@ -69,10 +69,11 @@ class HueManager(Plugin):
 	self.log.info(u"==> commands:   %s" % format(self.commands))
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
 	try:
-            b = Bridge(self.get_config("ip_bridge"))
+            b = Bridge(ip=self.get_config("ip_bridge"),config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
+    	    b.connect()
 	except:
 	    self.log.error(traceback.format_exc())
-	b.connect()
+	    self.force_leave()
 	data = {}
 	self.device_list = {}
 	huethreads = {}
@@ -96,7 +97,7 @@ class HueManager(Plugin):
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
-            b = Bridge(bridge_ip)
+            b = Bridge(ip=bridge_ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
             b.connect()
 	    data = {}
 	    status = b.get_light(address,'on')

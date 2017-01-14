@@ -15,7 +15,7 @@ import subprocess
 
 ### package specific functions
 def list_lights(ip):
-    b=Bridge(ip)
+    b=Bridge(ip=ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
     b.connect()
     lights = b.get_light()
     output = ""
