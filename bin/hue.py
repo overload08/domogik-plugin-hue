@@ -70,9 +70,10 @@ class HueManager(Plugin):
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
 	try:
             b = Bridge(self.get_config("ip_bridge"))
+    	    b.connect()
 	except:
 	    self.log.error(traceback.format_exc())
-	b.connect()
+	    self.force_leave()
 	data = {}
 	self.device_list = {}
 	huethreads = {}
@@ -83,16 +84,16 @@ class HueManager(Plugin):
 	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
             thr_name = "dev_{0}".format(a_device['id'])
             huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.get_config("ip_bridge")),{})
-	    print "Starting thread" + thr_name
+	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.get_config("ip_bridge"))
             huethreads[thr_name].start()
             self.register_thread(huethreads[thr_name])
-	self.register_cb_update_devices(myHandleDeviceUpdate)
+#	self.register_cb_update_devices(myHandleDeviceUpdate)
         self.ready()
 
-    def myHandleDeviceUpdate(self, devices):
-        for hardDevice in self._myHardDevices:
-            hardDevice.refreshAllDmgDevice(devices)
-        self.log.info(u"All hard devives are updated from domogik devices")
+#    def myHandleDeviceUpdate(self, devices):
+#        for hardDevice in self._myHardDevices:
+#            hardDevice.refreshAllDmgDevice(devices)
+#        self.log.info(u"All hard devives are updated from domogik devices")
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
@@ -105,8 +106,9 @@ class HueManager(Plugin):
 	    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
             data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
-	    data[self.sensors[device_id]['reachable']] = reachable
+	    data[self.sensors[device_id]['reachable']] = from_off_on_to_DT_Switch(reachable)
             try:
+		self.log.debug(u"Trying to send data sensor...")
                 self._pub.send_event('client.sensor', data)
             except:
                 # We ignore the message if some values are not correct
@@ -115,6 +117,7 @@ class HueManager(Plugin):
 	time.sleep(1)
 
     def on_mdp_request(self, msg):
+	self.log.error(u"Received MQ command, processing...")
 	Plugin.on_mdp_request(self, msg)
         b = Bridge(self.get_config("ip_bridge"))
         b.connect()
@@ -135,10 +138,10 @@ class HueManager(Plugin):
 	    self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
 	    command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
 	    if command == "set_brightness":
-    	        if data['current'] == '0':
-                    sensors[self.sensors[device_id]['light']] = "0"
+    	        if data['current'] == 0:
+                    sensors[self.sensors[device_id]['light']] = 0
 	        else:
-		    sensors[self.sensors[device_id]['light']] = "1"
+		    sensors[self.sensors[device_id]['light']] = 1
 		sensors[self.sensors[device_id]['brightness']] = data['current']
                 try:
                     self._pub.send_event('client.sensor', sensors)
@@ -157,18 +160,18 @@ class HueManager(Plugin):
 		        status = False
 	    elif command == "set_on":
 	        sensors[self.sensors[device_id]['light']] = data['current']
-            try:
-                self._pub.send_event('client.sensor', sensors)
-            except:
-                # We ignore the message if some values are not correct
-                self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                pass
-	    set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
-	    if ("success" in set):
-		if (set.index("success")) != -1:
-		    status = True
-	        else:
-		    status = False
+                try:
+                    self._pub.send_event('client.sensor', sensors)
+                except:
+                    # We ignore the message if some values are not correct
+                    self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
+                    pass
+	        set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
+	        if ("success" in set):
+		    if (set.index("success")) != -1:
+		        status = True
+	            else:
+		        status = False
             
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name) ;
