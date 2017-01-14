@@ -15,7 +15,7 @@ import subprocess
 
 ### package specific functions
 def list_lights(ip):
-    b=Bridge()
+    b=Bridge(ip)
     b.connect()
     lights = b.get_light()
     output = ""
