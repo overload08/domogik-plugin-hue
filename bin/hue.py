@@ -70,9 +70,10 @@ class HueManager(Plugin):
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
 	try:
             b = Bridge(self.get_config("ip_bridge"))
+	    b.connect()
 	except:
 	    self.log.error(traceback.format_exc())
-	b.connect()
+	    self.force_leave()
 	data = {}
 	self.device_list = {}
 	huethreads = {}
