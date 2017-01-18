@@ -43,20 +43,6 @@ from phue import Bridge
 import pprint
 import time
 
-def from_DT_Switch_to_off_on(x):
-    # 0 - 1 translated to off / on
-    if str(x) == "0":
-        return False
-    else:
-        return True
-
-def from_off_on_to_DT_Switch(x):
-    # off - on translated to 0 - 1
-    if x == False:
-        return 0
-    else:
-        return 1
-
 class HueManager(Plugin):
 
     def __init__(self):
@@ -87,13 +73,21 @@ class HueManager(Plugin):
 	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.get_config("ip_bridge"))
             huethreads[thr_name].start()
             self.register_thread(huethreads[thr_name])
-#	self.register_cb_update_devices(myHandleDeviceUpdate)
         self.ready()
 
-#    def myHandleDeviceUpdate(self, devices):
-#        for hardDevice in self._myHardDevices:
-#            hardDevice.refreshAllDmgDevice(devices)
-#        self.log.info(u"All hard devives are updated from domogik devices")
+    def from_DT_Switch_to_off_on(self, x):
+        # 0 - 1 translated to off / on
+        if str(x) == "0":
+            return False
+        else:
+            return True
+
+    def from_off_on_to_DT_Switch(self, x):
+        # off - on translated to 0 - 1
+        if x == False:
+            return 0
+        else:
+            return 1
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
@@ -104,9 +98,9 @@ class HueManager(Plugin):
 	    brightness = b.get_light(address,'bri')/254.00*100.00
 	    reachable = b.get_light(address,'reachable')
 	    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
-            data[self.sensors[device_id]['light']] = from_off_on_to_DT_Switch(status)
+            data[self.sensors[device_id]['light']] = self.from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
-	    data[self.sensors[device_id]['reachable']] = from_off_on_to_DT_Switch(reachable)
+	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
             try:
 		self.log.debug(u"Trying to send data sensor...")
                 self._pub.send_event('client.sensor', data)
@@ -114,7 +108,7 @@ class HueManager(Plugin):
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                 pass
-	time.sleep(1)
+	    time.sleep(1)
 
     def on_mdp_request(self, msg):
 	self.log.error(u"Received MQ command, processing...")
@@ -166,7 +160,7 @@ class HueManager(Plugin):
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                     pass
-	        set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
+	        set = b.set_light(self.device_list[device_id]['address'], 'on', self.from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
 	        if ("success" in set):
 		    if (set.index("success")) != -1:
 		        status = True
