@@ -26,7 +26,8 @@
 			"name": "White",
 			"commands": [
 				"set_brightness",
-				"set_on"
+				"set_on",
+				"send_alert"
 			],
 			"sensors": ["light", "brightness", "reachable"],
 			"parameters": [{
