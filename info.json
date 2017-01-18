@@ -100,7 +100,16 @@
 				"data_type": "DT_Switch",
 				"conversion": ""
 			}]
-		}
+		},
+                "send_alert": {
+                        "name": "Send alert",
+                        "return_confirmation": false,
+                        "parameters": [{
+                                "key": "current",
+                                "data_type": "DT_Trigger",
+                                "conversion": ""
+                        }]
+                }
 	},
 	"xpl_commands": {}
 }

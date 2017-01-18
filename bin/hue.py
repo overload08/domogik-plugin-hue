@@ -176,6 +176,8 @@ class HueManager(Plugin):
 		        status = True
 	            else:
 		        status = False
+            elif command == "send_alert":
+                b.set_light(self.device_list[device_id]['address'], 'alert', 'lselect'))
             
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name) ;
