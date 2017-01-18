@@ -134,6 +134,12 @@ input[type='range']:focus {
   outline: none;
   box-shadow: 0 0 0.125em #00fc6b;
 }
+#value {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 70px);
+  font-size: 16px;
+}
         </style>
         <dmw-command id="primary" commandkey="primary"></dmw-command>
         <dmw-sensor id="availability" sensorkey="availability" sensorvalue="{{availability}}"></dmw-sensor>
@@ -142,6 +148,7 @@ input[type='range']:focus {
         <div class="slider">
           <input type="range" id="range" min="0" max="100" step="1" style="background: transparent;">
         </div>
+	<div id="value">{{current}}%</div>
     </template>
     <script>
         Polymer('dmw-hue-basicRangeCommand', {
@@ -175,7 +182,7 @@ input[type='range']:focus {
                 }
             },
             scalingstateChanged: function(oldValue, newValue) {
-                this.current = newValue.stored_value;
+                this.current = Math.round(newValue.stored_value);
                 this.$.range.value = this.current;
                 var val = (this.$.range.value - this.$.range.min) / (this.$.range.max - this.$.range.min);
             },
