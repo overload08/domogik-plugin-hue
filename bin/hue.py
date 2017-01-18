@@ -62,10 +62,11 @@ class HueManager(Plugin):
 	self.devices = self.get_device_list(quit_if_no_device=True)
 	self.commands = self.get_commands(self.devices)
 	self.sensors = self.get_sensors(self.devices)
+	self.ip_bridge = self.get_config("ip_bridge")
 	self.log.info(u"==> commands:   %s" % format(self.commands))
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
 	try:
-            b = Bridge(ip=self.get_config("ip_bridge"),config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
+            b = Bridge(ip=self.ip_bridge,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
     	    b.connect()
 	except:
 	    self.log.error(traceback.format_exc())
@@ -79,8 +80,8 @@ class HueManager(Plugin):
 	    sensor_address = self.get_parameter(a_device, "Device")
 	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
             thr_name = "dev_{0}".format(a_device['id'])
-            huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.get_config("ip_bridge")),{})
-	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.get_config("ip_bridge"))
+            huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.ip_bridge),{})
+	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
             huethreads[thr_name].start()
             self.register_thread(huethreads[thr_name])
         self.ready()
@@ -123,7 +124,7 @@ class HueManager(Plugin):
     def on_mdp_request(self, msg):
 	self.log.error(u"Received MQ command, processing...")
 	Plugin.on_mdp_request(self, msg)
-        b = Bridge(self.get_config("ip_bridge"))
+        b = Bridge(self.ip_bridge)
         b.connect()
 	sensors = {}
 	if msg.get_action() == "client.cmd":
@@ -193,7 +194,7 @@ class HueManager(Plugin):
                         status = False
 
             # Reply MQ REP (acq) to REQ command
-            self.send_rep_ack(status, reason, command_id, device_name) ;
+            self.send_rep_ack(status, reason, command_id, device_name)
 	    return
 
     def send_rep_ack(self, status, reason, cmd_id, dev_name):
