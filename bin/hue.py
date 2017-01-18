@@ -30,7 +30,7 @@ Implements
 Philips Hue Manager
 
 @author: OverLoad <y.poilvert@geekinfo.fr>
-@copyright: (C) 2007-2015 Domogik project
+@copyright: (C) 2007-2017 Domogik project
 @license: GPL(v3)
 @organization: Domogik
 """
@@ -177,8 +177,21 @@ class HueManager(Plugin):
 	            else:
 		        status = False
             elif command == "send_alert":
-                b.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
-            
+		self.log.debug(u"Sending alert on device " + self.device_list[device_id]['address'])
+                sensors[self.sensors[device_id]['light']] = data['current']
+                try:
+                    self._pub.send_event('client.sensor', sensors)
+                except:
+                    # We ignore the message if some values are not correct
+                    self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
+                    pass
+                set = b.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
+                if ("success" in set):
+                    if (set.index("success")) != -1:
+                        status = True
+                    else:
+                        status = False
+
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name) ;
 	    return
