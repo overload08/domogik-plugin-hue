@@ -15,14 +15,17 @@ import subprocess
 
 ### package specific functions
 def list_lights(ip):
-    b=Bridge(ip=ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
-    b.connect()
-    lights = b.get_light()
     output = ""
-    for light in lights:
-        output += "Light ID : " + light[0] + "\n"
-        output += "    Name : " + lights[light]["name"] + "\n"
-        output += "\n"
+    try:
+        b=Bridge(ip=ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
+        b.connect()
+        lights = b.get_light()
+        for light in lights:
+            output += "Light ID : " + light[0] + "\n"
+            output += "    Name : " + lights[light]["name"] + "\n"
+            output += "\n"
+    except:
+	output = "Error while retrieving Hue lamps... Have you push the bridge button?"
     return output
 
 
