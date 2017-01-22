@@ -102,18 +102,22 @@ class HueManager(Plugin):
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
-            b = Bridge(ip=bridge_ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
-            b.connect()
 	    data = {}
-	    status = b.get_light(address,'on')
-	    brightness = b.get_light(address,'bri')/254.00*100.00
-	    reachable = b.get_light(address,'reachable')
-	    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
+	    try:
+                b = Bridge(ip=bridge_ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
+                b.connect()
+    	        status = b.get_light(address,'on')
+	        brightness = b.get_light(address,'bri')/254.00*100.00
+	        reachable = b.get_light(address,'reachable')
+    	        self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
+		self.log.debug(u"Trying to send data sensor...")
+	    except:
+		self.log.debug(u"Unable to get device information for id " + str(device_id))
+		pass
             data[self.sensors[device_id]['light']] = self.from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
 	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
             try:
-		self.log.debug(u"Trying to send data sensor...")
                 self._pub.send_event('client.sensor', data)
             except:
                 # We ignore the message if some values are not correct
