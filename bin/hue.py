@@ -66,11 +66,7 @@ class HueManager(Plugin):
 	self.log.info(u"==> commands:   %s" % format(self.commands))
 	self.log.info(u"==> sensors:   %s" % format(self.sensors))
 	try:
-<<<<<<< HEAD
-            b = Bridge(self.get_config("ip_bridge"))
-=======
             b = Bridge(ip=self.ip_bridge,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
->>>>>>> refs/remotes/origin/develop
     	    b.connect()
 	except:
 	    self.log.error(traceback.format_exc())
@@ -84,19 +80,6 @@ class HueManager(Plugin):
 	    sensor_address = self.get_parameter(a_device, "Device")
 	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
             thr_name = "dev_{0}".format(a_device['id'])
-<<<<<<< HEAD
-            huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.get_config("ip_bridge")),{})
-	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.get_config("ip_bridge"))
-            huethreads[thr_name].start()
-            self.register_thread(huethreads[thr_name])
-#	self.register_cb_update_devices(myHandleDeviceUpdate)
-        self.ready()
-
-#    def myHandleDeviceUpdate(self, devices):
-#        for hardDevice in self._myHardDevices:
-#            hardDevice.refreshAllDmgDevice(devices)
-#        self.log.info(u"All hard devives are updated from domogik devices")
-=======
             huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.ip_bridge),{})
 	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
             huethreads[thr_name].start()
@@ -116,7 +99,6 @@ class HueManager(Plugin):
             return 0
         else:
             return 1
->>>>>>> refs/remotes/origin/develop
 
     def get_status(self, log, device_id, address,bridge_ip):
 	while not self._stop.isSet():
@@ -134,13 +116,8 @@ class HueManager(Plugin):
 		pass
             data[self.sensors[device_id]['light']] = self.from_off_on_to_DT_Switch(status)
             data[self.sensors[device_id]['brightness']] = brightness
-<<<<<<< HEAD
-	    data[self.sensors[device_id]['reachable']] = from_off_on_to_DT_Switch(reachable)
-=======
 	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
->>>>>>> refs/remotes/origin/develop
             try:
-		self.log.debug(u"Trying to send data sensor...")
                 self._pub.send_event('client.sensor', data)
             except:
                 # We ignore the message if some values are not correct
@@ -198,19 +175,12 @@ class HueManager(Plugin):
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                     pass
-<<<<<<< HEAD
-	        set = b.set_light(self.device_list[device_id]['address'], 'on', from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
-=======
 	        set = b.set_light(self.device_list[device_id]['address'], 'on', self.from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
->>>>>>> refs/remotes/origin/develop
 	        if ("success" in set):
 		    if (set.index("success")) != -1:
 		        status = True
 	            else:
 		        status = False
-<<<<<<< HEAD
-            
-=======
             elif command == "send_alert":
 		self.log.debug(u"Sending alert on device " + self.device_list[device_id]['address'])
                 sensors[self.sensors[device_id]['light']] = data['current']
@@ -227,7 +197,6 @@ class HueManager(Plugin):
                     else:
                         status = False
 
->>>>>>> refs/remotes/origin/develop
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name)
 	    return
