@@ -14,15 +14,18 @@ import subprocess
 
 
 ### package specific functions
-def list_lights():
-    b=Bridge('10.0.0.129')
-    b.connect()
-    lights = b.get_light()
+def list_lights(ip):
     output = ""
-    for light in lights:
-        output += "Light ID : " + light[0] + "\n"
-        output += "    Name : " + lights[light]["name"] + "\n"
-        output += "\n"
+    try:
+        b=Bridge(ip=ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
+        b.connect()
+        lights = b.get_light()
+        for light in lights:
+            output += "Light ID : " + light[0] + "\n"
+            output += "    Name : " + lights[light]["name"] + "\n"
+            output += "\n"
+    except:
+	output = "Error while retrieving Hue lamps... Have you push the bridge button?"
     return output
 
 
@@ -45,7 +48,7 @@ def index(client_id):
             client_detail = detail,
             mactive="clients",
             active = 'advanced',
-	    hue = list_lights())
+	    hue = list_lights(detail['data']['configuration'][1]['value']))
 
     except TemplateNotFound:
         abort(404)
