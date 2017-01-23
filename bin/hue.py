@@ -152,11 +152,11 @@ class HueManager(Plugin):
 	    self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
 	    command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
 	    if command == "set_brightness":
-    	        if data['current'] == 0:
+    	        if data['bri'] == 0:
                     sensors[self.sensors[device_id]['light']] = 0
 	        else:
 		    sensors[self.sensors[device_id]['light']] = 1
-		sensors[self.sensors[device_id]['brightness']] = data['current']
+		sensors[self.sensors[device_id]['brightness']] = data['bri']
                 try:
                     self._pub.send_event('client.sensor', sensors)
                 except:
@@ -164,8 +164,8 @@ class HueManager(Plugin):
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                     pass
 
-                new_value = int(float(data['current'])) * 254/100
-		self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['current'], new_value))
+                new_value = int(float(data['bri'])) * 254/100
+		self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['bri'], new_value))
                 set = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
 		if ("success" in set):
     		    if (set.index("success")) != -1:
@@ -173,7 +173,7 @@ class HueManager(Plugin):
 		    else:
 		        status = False
 	    elif command == "set_on":
-	        sensors[self.sensors[device_id]['light']] = data['current']
+	        sensors[self.sensors[device_id]['light']] = data['switch']
                 try:
                     self._pub.send_event('client.sensor', sensors)
                 except:
@@ -188,13 +188,6 @@ class HueManager(Plugin):
 		        status = False
             elif command == "send_alert":
 		self.log.debug(u"Sending alert on device %s" % str(self.device_list[device_id]['address']))
-                sensors[self.sensors[device_id]['light']] = data['current']
-                try:
-                    self._pub.send_event('client.sensor', sensors)
-                except:
-                    # We ignore the message if some values are not correct
-                    self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                    pass
                 set = b.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
                 if ("success" in set):
                     if (set.index("success")) != -1:
