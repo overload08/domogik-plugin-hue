@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-                                                                           
+# -*- coding: utf-8 -*-
 
 """ This file is part of B{Domogik} project (U{http://www.domogik.org}).
 
@@ -40,7 +40,6 @@ import traceback
 from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
 from phue import Bridge
-import pprint
 import time
 import os
 
@@ -55,91 +54,91 @@ class HueManager(Plugin):
             try:
                 os.mkdir(str(self.get_data_files_directory()))
                 self.log.info(u"Hue data directory created : %s" % str(self.get_data_files_directory()))
-            except Exception as e:
-                self.log.error(e.message)
+            except Exception as exc:
+                self.log.error(exc.message)
         if not os.access(str(self.get_data_files_directory()), os.W_OK):
             self.log.error("No write access on data directory : %s" % (str(self.get_data_files_directory())))
-	self.devices = self.get_device_list(quit_if_no_device=True)
-	self.commands = self.get_commands(self.devices)
-	self.sensors = self.get_sensors(self.devices)
-	self.ip_bridge = self.get_config("ip_bridge")
-	self.log.info(u"==> commands:   %s" % format(self.commands))
-	self.log.info(u"==> sensors:   %s" % format(self.sensors))
-	try:
-            b = Bridge(ip=self.ip_bridge,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
-    	    b.connect()
-	except:
-	    self.log.error(traceback.format_exc())
-	    self.force_leave()
-	data = {}
-	self.device_list = {}
-	huethreads = {}
-	for a_device in self.devices:
-	    device_name = a_device["name"]
-	    device_id = a_device["id"]
-	    sensor_address = self.get_parameter(a_device, "Device")
-	    self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
+        self.devices = self.get_device_list(quit_if_no_device=True)
+        self.commands = self.get_commands(self.devices)
+        self.sensors = self.get_sensors(self.devices)
+        self.ip_bridge = self.get_config("ip_bridge")
+        self.log.info(u"==> commands:   %s" % format(self.commands))
+        self.log.info(u"==> sensors:   %s" % format(self.sensors))
+        try:
+            bridge = Bridge(ip=self.ip_bridge, config_file_path=self.get_data_files_directory() + "/bridge.config")
+            bridge.connect()
+        except:
+            self.log.error(traceback.format_exc())
+            self.force_leave()
+        self.device_list = {}
+        huethreads = {}
+        for a_device in self.devices:
+            device_name = a_device["name"]
+            device_id = a_device["id"]
+            sensor_address = self.get_parameter(a_device, "Device")
+            self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
             thr_name = "dev_{0}".format(a_device['id'])
-            huethreads[thr_name] = threading.Thread(None,self.get_status,thr_name,(self.log,device_id,sensor_address,self.ip_bridge),{})
-	    self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
+            huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, sensor_address, self.ip_bridge), {})
+            self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
             huethreads[thr_name].start()
             self.register_thread(huethreads[thr_name])
         self.ready()
 
-    def from_DT_Switch_to_off_on(self, x):
+    @staticmethod
+    def from_dt_switch_to_off_on(value):
         # 0 - 1 translated to off / on
-        if str(x) == "0":
+        if str(value) == "0":
             return False
         else:
             return True
 
-    def from_off_on_to_DT_Switch(self, x):
+    @staticmethod
+    def from_off_on_to_dt_switch(value):
         # off - on translated to 0 - 1
-        if x == False:
+        if value == False:
             return 0
         else:
             return 1
 
-    def get_status(self, log, device_id, address,bridge_ip):
-	old_data = {}
-	interval = 300
-	while not self._stop.isSet():
-	    data = {}
-	    try:
-                b = Bridge(ip=bridge_ip,config_file_path="/var/lib/domogik/domogik_packages/plugin_hue/data/bridge.config")
-                b.connect()
-    	        status = b.get_light(address,'on')
-	        brightness = b.get_light(address,'bri')/254.00*100.00
-	        reachable = b.get_light(address,'reachable')
-	    except:
-		self.log.debug(u"Unable to get device information for id " + str(device_id))
-		pass
-            data[self.sensors[device_id]['light']] = self.from_off_on_to_DT_Switch(status)
-	    if(self.from_off_on_to_DT_Switch(status) == 0):
-                data[self.sensors[device_id]['brightness']] = 0
-	    else:
-		data[self.sensors[device_id]['brightness']] = brightness
-	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
+    def get_status(self, device_id, address, bridge_ip):
+        old_data = {}
+        interval = 300
+        while not self._stop.isSet():
+            data = {}
+            previous_time = time.time()
             try:
-		if ((data != old_data) or (time.time() - previous_time >= interval)):
+                bridge = Bridge(ip=bridge_ip, config_file_path=self.get_data_files_directory() + "/bridge.config")
+                bridge.connect()
+                status = bridge.get_light(address, 'on')
+                brightness = bridge.get_light(address, 'bri')/254.00*100.00
+                reachable = bridge.get_light(address, 'reachable')
+            except:
+                self.log.debug(u"Unable to get device information for id " + str(device_id))
+            data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
+            if self.from_off_on_to_dt_switch(status) == 0:
+                data[self.sensors[device_id]['brightness']] = 0
+            else:
+                data[self.sensors[device_id]['brightness']] = brightness
+            data[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
+            try:
+                if (data != old_data) or (time.time() - previous_time >= interval):
                     self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
                     self.log.debug(u"Trying to send data sensor...")
                     self._pub.send_event('client.sensor', data)
-		    old_data = data
-		    previous_time = time.time()
+                    old_data = data
+                    previous_time = time.time()
             except:
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                pass
-	    time.sleep(1)
+            time.sleep(1)
 
     def on_mdp_request(self, msg):
-	self.log.error(u"Received MQ command, processing...")
-	Plugin.on_mdp_request(self, msg)
-        b = Bridge(self.ip_bridge)
-        b.connect()
-	sensors = {}
-	if msg.get_action() == "client.cmd":
+        self.log.error(u"Received MQ command, processing...")
+        Plugin.on_mdp_request(self, msg)
+        bridge = Bridge(self.ip_bridge)
+        bridge.connect()
+        sensors = {}
+        if msg.get_action() == "client.cmd":
             reason = None
             status = True
             data = msg.get_data()
@@ -149,60 +148,58 @@ class HueManager(Plugin):
                 self.log.error(u"### MQ REQ command, Device ID '%s' unknown, Have you restarted the plugin after device creation ?" % device_id)
                 status = False
                 reason = u"Plugin Hue: Unknown device ID %d" % device_id
-                self.send_rep_ack(status, reason, command_id, "unknown") ;                      # Reply MQ REP (acq) to REQ command
+                self.send_rep_ack(status, reason, command_id, "unknown")                      # Reply MQ REP (acq) to REQ command
                 return
-	    device_name = self.device_list[device_id]["name"]
-	    self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
-	    command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
-	    if command == "set_brightness":
-    	        if data['bri'] == 0:
+            device_name = self.device_list[device_id]["name"]
+            self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
+            command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
+            if command == "set_brightness":
+                if data['bri'] == 0:
                     sensors[self.sensors[device_id]['light']] = 0
-	        else:
-		    sensors[self.sensors[device_id]['light']] = 1
-		sensors[self.sensors[device_id]['brightness']] = data['bri']
+                else:
+                    sensors[self.sensors[device_id]['light']] = 1
+                sensors[self.sensors[device_id]['brightness']] = data['bri']
                 try:
                     self._pub.send_event('client.sensor', sensors)
                 except:
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                    pass
 
                 new_value = int(float(data['bri'])) * 254/100
-		self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['bri'], new_value))
-                set = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
-		if ("success" in set):
-    		    if (set.index("success")) != -1:
-		        status = True
-		    else:
-		        status = False
-	    elif command == "set_on":
-	        sensors[self.sensors[device_id]['light']] = data['switch']
-		if(data['switch'] == 0):
-		    sensors[self.sensors[device_id]['brightness']] = 0
+                self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['bri'], new_value))
+                set = bridge.set_light(self.device_list[device_id]['address'], 'bri', new_value)
+                if "success" in set:
+                    if set.index("success") != -1:
+                        status = True
+                    else:
+                        status = False
+            elif command == "set_on":
+                sensors[self.sensors[device_id]['light']] = data['switch']
+                if data['switch'] == 0:
+                    sensors[self.sensors[device_id]['brightness']] = 0
                 try:
                     self._pub.send_event('client.sensor', sensors)
                 except:
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                    pass
-	        set = b.set_light(self.device_list[device_id]['address'], 'on', self.from_DT_Switch_to_off_on(sensors[self.sensors[device_id]['light']]))	
-	        if ("success" in set):
-		    if (set.index("success")) != -1:
-		        status = True
-	            else:
-		        status = False
+                set = bridge.set_light(self.device_list[device_id]['address'], 'on', self.from_dt_switch_to_off_on(sensors[self.sensors[device_id]['light']]))
+                if "success" in set:
+                    if set.index("success") != -1:
+                        status = True
+                    else:
+                        status = False
             elif command == "send_alert":
-		self.log.debug(u"Sending alert on device %s" % str(self.device_list[device_id]['address']))
-                set = b.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
-                if ("success" in set):
-                    if (set.index("success")) != -1:
+                self.log.debug(u"Sending alert on device %s" % str(self.device_list[device_id]['address']))
+                set = bridge.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
+                if "success" in set:
+                    if set.index("success") != -1:
                         status = True
                     else:
                         status = False
 
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name)
-	    return
+            return
 
     def send_rep_ack(self, status, reason, cmd_id, dev_name):
         """ Send MQ REP (acq) to command
@@ -215,4 +212,4 @@ class HueManager(Plugin):
         self.reply(reply_msg.get())
 
 if __name__ == "__main__":
-    tts = HueManager()
+    HueManager()
