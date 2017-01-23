@@ -187,7 +187,7 @@ class HueManager(Plugin):
 	            else:
 		        status = False
             elif command == "send_alert":
-		self.log.debug(u"Sending alert on device " + self.device_list[device_id]['address'])
+		self.log.debug(u"Sending alert on device %s" % str(self.device_list[device_id]['address']))
                 sensors[self.sensors[device_id]['light']] = data['current']
                 try:
                     self._pub.send_event('client.sensor', sensors)
