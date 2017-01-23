@@ -101,6 +101,8 @@ class HueManager(Plugin):
             return 1
 
     def get_status(self, log, device_id, address,bridge_ip):
+	old_data = {}
+	interval = 300
 	while not self._stop.isSet():
 	    data = {}
 	    try:
@@ -109,8 +111,6 @@ class HueManager(Plugin):
     	        status = b.get_light(address,'on')
 	        brightness = b.get_light(address,'bri')/254.00*100.00
 	        reachable = b.get_light(address,'reachable')
-    	        self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
-		self.log.debug(u"Trying to send data sensor...")
 	    except:
 		self.log.debug(u"Unable to get device information for id " + str(device_id))
 		pass
@@ -118,7 +118,12 @@ class HueManager(Plugin):
             data[self.sensors[device_id]['brightness']] = brightness
 	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
             try:
-                self._pub.send_event('client.sensor', data)
+		if ((data != old_data) or (time.time() - previous_time >= interval)):
+                    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
+                    self.log.debug(u"Trying to send data sensor...")
+                    self._pub.send_event('client.sensor', data)
+		    old_data = data
+		    previous_time = time.time()
             except:
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
@@ -159,7 +164,7 @@ class HueManager(Plugin):
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
                     pass
 
-                new_value = int(data['current']) * 254/100
+                new_value = int(float(data['current'])) * 254/100
 		self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['current'], new_value))
                 set = b.set_light(self.device_list[device_id]['address'], 'bri', new_value)
 		if ("success" in set):
