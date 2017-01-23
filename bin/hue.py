@@ -115,7 +115,10 @@ class HueManager(Plugin):
 		self.log.debug(u"Unable to get device information for id " + str(device_id))
 		pass
             data[self.sensors[device_id]['light']] = self.from_off_on_to_DT_Switch(status)
-            data[self.sensors[device_id]['brightness']] = brightness
+	    if(self.from_off_on_to_DT_Switch(status) == 0):
+                data[self.sensors[device_id]['brightness']] = 0
+	    else:
+		data[self.sensors[device_id]['brightness']] = brightness
 	    data[self.sensors[device_id]['reachable']] = self.from_off_on_to_DT_Switch(reachable)
             try:
 		if ((data != old_data) or (time.time() - previous_time >= interval)):
@@ -174,6 +177,8 @@ class HueManager(Plugin):
 		        status = False
 	    elif command == "set_on":
 	        sensors[self.sensors[device_id]['light']] = data['switch']
+		if(data['switch'] == 0):
+		    sensors[self.sensors[device_id]['brightness']] = 0
                 try:
                     self._pub.send_event('client.sensor', sensors)
                 except:
