@@ -77,7 +77,7 @@ class HueManager(Plugin):
             device_id = a_device["id"]
             sensor_address = self.get_parameter(a_device, "Device")
             self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
-            thr_name = "dev_{0}".format(a_device['id'])
+            thr_name = "dev_" + str(device_id)
             huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, sensor_address, self.ip_bridge), {})
             self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
             huethreads[thr_name].start()
@@ -103,14 +103,14 @@ class HueManager(Plugin):
     def get_status(self, device_id, address, bridge_ip):
         old_data = {}
         interval = 300
+        previous_time = time.time()
         while not self._stop.isSet():
             data = {}
-            previous_time = time.time()
             try:
                 bridge = Bridge(ip=bridge_ip, config_file_path=self.get_data_files_directory() + "/bridge.config")
                 bridge.connect()
                 status = bridge.get_light(address, 'on')
-                brightness = bridge.get_light(address, 'bri')/254.00*100.00
+                brightness = round(bridge.get_light(address, 'bri')/254.00*100.00)
                 reachable = bridge.get_light(address, 'reachable')
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
