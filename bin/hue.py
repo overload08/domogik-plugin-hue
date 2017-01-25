@@ -75,7 +75,7 @@ class HueManager(Plugin):
         for a_device in self.devices:
             device_name = a_device["name"]
             device_id = a_device["id"]
-            sensor_address = self.get_parameter(a_device, "Device")
+            sensor_address = int(self.get_parameter(a_device, "Device"))
             self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
             thr_name = "dev_" + str(device_id)
             huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, sensor_address, self.ip_bridge), {})
@@ -115,7 +115,7 @@ class HueManager(Plugin):
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
             data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
-            if self.from_off_on_to_dt_switch(status) == 0:
+            if self.from_off_on_to_dt_switch(status) == 0 or self.from_off_on_to_dt_switch(reachable) == 0:
                 data[self.sensors[device_id]['brightness']] = 0
             else:
                 data[self.sensors[device_id]['brightness']] = brightness
