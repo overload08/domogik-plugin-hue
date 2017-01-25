@@ -6,7 +6,7 @@
 		"tags": ["plugin", "light", "hue"],
 		"dependencies": [],
 		"description": "Control Hue lights",
-		"domogik_min_version": "0.6",
+		"domogik_min_version": "0.5.1",
 		"name": "hue",
 		"type": "plugin",
 		"version": "1.1"
