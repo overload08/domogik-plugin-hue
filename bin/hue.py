@@ -49,6 +49,9 @@ class HueManager(Plugin):
         """ Init plugin
         """
         Plugin.__init__(self, name='hue')
+        # check if the plugin is configured. If not, this will stop the plugin and log an error
+        if not self.check_configured():
+            return
         if not os.path.exists(str(self.get_data_files_directory())):
             self.log.info(u"Directory data not exist, trying create : %s", str(self.get_data_files_directory()))
             try:
@@ -71,17 +74,13 @@ class HueManager(Plugin):
             self.log.error(traceback.format_exc())
             self.force_leave()
         self.device_list = {}
-        huethreads = {}
         for a_device in self.devices:
             device_name = a_device["name"]
             device_id = a_device["id"]
-            sensor_address = int(self.get_parameter(a_device, "Device"))
-            self.device_list.update({device_id : {'name': device_name, 'address': sensor_address}})
-            thr_name = "dev_" + str(device_id)
-            huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, sensor_address, self.ip_bridge), {})
-            self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", sensor_address=" + str(sensor_address) + ", ip_bridge=" + self.ip_bridge)
-            huethreads[thr_name].start()
-            self.register_thread(huethreads[thr_name])
+            lamp_id = int(self.get_parameter(a_device, "Device"))
+            self.device_list.update({device_id : {'name': device_name, 'address': lamp_id}})
+            self.launch_thread(device_id, lamp_id)
+        #self.register_cb_update_devices()
         self.ready()
 
     @staticmethod
@@ -100,7 +99,16 @@ class HueManager(Plugin):
         else:
             return 1
 
-    def get_status(self, device_id, address, bridge_ip):
+    def launch_thread(self, device_id, lamp_id):
+        huethreads = {}
+        thr_name = "dev_" + str(device_id)
+        huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, lamp_id, self.ip_bridge), {})
+        self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", lamp_id=" + str(lamp_id) + ", ip_bridge=" + self.ip_bridge)
+        huethreads[thr_name].start()
+        self.register_thread(huethreads[thr_name])
+
+
+    def get_status(self, device_id, lamp_id, bridge_ip):
         old_data = {}
         interval = 300
         previous_time = time.time()
@@ -109,9 +117,9 @@ class HueManager(Plugin):
             try:
                 bridge = Bridge(ip=bridge_ip, config_file_path=self.get_data_files_directory() + "/bridge.config")
                 bridge.connect()
-                status = bridge.get_light(address, 'on')
-                brightness = round(bridge.get_light(address, 'bri')/254.00*100.00)
-                reachable = bridge.get_light(address, 'reachable')
+                status = bridge.get_light(lamp_id, 'on')
+                brightness = int(float(bridge.get_light(lamp_id, 'bri')/254.00*100.00))
+                reachable = bridge.get_light(lamp_id, 'reachable')
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
             data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
@@ -122,9 +130,10 @@ class HueManager(Plugin):
             data[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
             try:
                 if (data != old_data) or (time.time() - previous_time >= interval):
-                    self.log.info(u"==> Device '%s' state '%s', brightness '%s', reachable '%s'" % (device_id, status, brightness, reachable))
+                    self.log.info(u"==> Lamp '%s' state '%s', brightness '%s', reachable '%s'" % (lamp_id, status, brightness, reachable))
                     self.log.debug(u"Trying to send data sensor...")
                     self._pub.send_event('client.sensor', data)
+                    self.log.debug(u"Data sent!")
                     old_data = data
                     previous_time = time.time()
             except:
@@ -166,7 +175,7 @@ class HueManager(Plugin):
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
 
                 new_value = int(float(data['bri'])) * 254/100
-                self.log.debug(u"Set brightness to '%s'  light to '%s'" % (data['bri'], new_value))
+                self.log.debug(u"Set brightness to '%s' light to '%s'" % (data['bri'], new_value))
                 set = bridge.set_light(self.device_list[device_id]['address'], 'bri', new_value)
                 if "success" in set:
                     if set.index("success") != -1:
