@@ -79,8 +79,8 @@ class HueManager(Plugin):
             device_id = a_device["id"]
             lamp_id = int(self.get_parameter(a_device, "Device"))
             self.device_list.update({device_id : {'name': device_name, 'address': lamp_id}})
-            self.launch_thread(device_id, lamp_id)
-        #self.register_cb_update_devices()
+            self.launch_thread(a_device)
+        self.register_cb_update_devices(self.launch_thread)
         self.ready()
 
     @staticmethod
@@ -99,11 +99,12 @@ class HueManager(Plugin):
         else:
             return 1
 
-    def launch_thread(self, device_id, lamp_id):
+    def launch_thread(self, a_device):
         huethreads = {}
-        thr_name = "dev_" + str(device_id)
-        huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, lamp_id, self.ip_bridge), {})
-        self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", lamp_id=" + str(lamp_id) + ", ip_bridge=" + self.ip_bridge)
+        lamp_id = int(self.get_parameter(a_device, "Device"))
+        thr_name = "dev_" + str(a_device["id"])
+        huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (a_device["id"], lamp_id, self.ip_bridge), {})
+        self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(a_device["id"]) +", lamp_id=" + str(lamp_id) + ", ip_bridge=" + self.ip_bridge)
         huethreads[thr_name].start()
         self.register_thread(huethreads[thr_name])
 
