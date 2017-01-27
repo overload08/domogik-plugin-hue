@@ -42,6 +42,7 @@ from domogikmq.message import MQMessage
 from phue import Bridge
 import time
 import os
+import pprint
 
 class HueManager(Plugin):
 
@@ -64,6 +65,7 @@ class HueManager(Plugin):
         self.devices = self.get_device_list(quit_if_no_device=True)
         self.commands = self.get_commands(self.devices)
         self.sensors = self.get_sensors(self.devices)
+        self.sensors_values = {}
         self.ip_bridge = self.get_config("ip_bridge")
         self.log.info(u"==> commands:   %s" % format(self.commands))
         self.log.info(u"==> sensors:   %s" % format(self.sensors))
@@ -122,11 +124,15 @@ class HueManager(Plugin):
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
             data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
+            self.sensors_values[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
             if self.from_off_on_to_dt_switch(status) == 0 or self.from_off_on_to_dt_switch(reachable) == 0:
                 data[self.sensors[device_id]['brightness']] = 0
+                self.sensors_values[self.sensors[device_id]['brightness']] = 0
             else:
                 data[self.sensors[device_id]['brightness']] = brightness
+                self.sensors_values[self.sensors[device_id]['brightness']] = brightness
             data[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
+            self.sensors_values[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
             try:
                 if (data != old_data) or (time.time() - previous_time >= interval):
                     self.log.info(u"==> Lamp '%s' state '%s', brightness '%s', reachable '%s'" % (lamp_id, status, brightness, reachable))
@@ -159,11 +165,14 @@ class HueManager(Plugin):
             device_name = self.device_list[device_id]["name"]
             self.log.debug(u"==> Received MQ REQ command message: %s" % format(data))
             command = list(self.commands[device_id].keys())[list(self.commands[device_id].values()).index(command_id)]
+            bridgecmd = {}
             if command == "set_brightness":
-                if data['bri'] == 0:
-                    sensors[self.sensors[device_id]['light']] = 0
-                else:
+                new_value = int(float(data['bri'])) * 254/100
+                if self.sensors_values[self.sensors[device_id]['light']] == 0:
                     sensors[self.sensors[device_id]['light']] = 1
+                    bridgecmd = {'on' : True, 'bri' : new_value}
+                else:
+                    bridgecmd = {'bri' : new_value}
                 sensors[self.sensors[device_id]['brightness']] = data['bri']
                 try:
                     self._pub.send_event('client.sensor', sensors)
@@ -171,9 +180,8 @@ class HueManager(Plugin):
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
 
-                new_value = int(float(data['bri'])) * 254/100
                 self.log.debug(u"Set brightness to '%s' light to '%s'" % (data['bri'], new_value))
-                set = self.bridge.set_light(self.device_list[device_id]['address'], 'bri', new_value)
+                set = self.bridge.set_light(self.device_list[device_id]['address'], bridgecmd)
                 if "success" in set:
                     if set.index("success") != -1:
                         status = True
