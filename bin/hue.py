@@ -68,8 +68,8 @@ class HueManager(Plugin):
         self.log.info(u"==> commands:   %s" % format(self.commands))
         self.log.info(u"==> sensors:   %s" % format(self.sensors))
         try:
-            bridge = Bridge(ip=self.ip_bridge, config_file_path=self.get_data_files_directory() + "/bridge.config")
-            bridge.connect()
+            self.bridge = Bridge(ip=self.ip_bridge, config_file_path=self.get_data_files_directory() + "/bridge.config")
+            self.bridge.connect()
         except:
             self.log.error(traceback.format_exc())
             self.force_leave()
@@ -116,11 +116,9 @@ class HueManager(Plugin):
         while not self._stop.isSet():
             data = {}
             try:
-                bridge = Bridge(ip=bridge_ip, config_file_path=self.get_data_files_directory() + "/bridge.config")
-                bridge.connect()
-                status = bridge.get_light(lamp_id, 'on')
-                brightness = int(float(bridge.get_light(lamp_id, 'bri')/254.00*100.00))
-                reachable = bridge.get_light(lamp_id, 'reachable')
+                status = self.bridge.get_light(lamp_id, 'on')
+                brightness = int(float(self.bridge.get_light(lamp_id, 'bri')/254.00*100.00))
+                reachable = self.bridge.get_light(lamp_id, 'reachable')
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
             data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
@@ -140,13 +138,11 @@ class HueManager(Plugin):
             except:
                 # We ignore the message if some values are not correct
                 self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-            time.sleep(1)
+            self._stop.wait(1)
 
     def on_mdp_request(self, msg):
         self.log.error(u"Received MQ command, processing...")
         Plugin.on_mdp_request(self, msg)
-        bridge = Bridge(self.ip_bridge)
-        bridge.connect()
         sensors = {}
         if msg.get_action() == "client.cmd":
             reason = None
@@ -177,7 +173,7 @@ class HueManager(Plugin):
 
                 new_value = int(float(data['bri'])) * 254/100
                 self.log.debug(u"Set brightness to '%s' light to '%s'" % (data['bri'], new_value))
-                set = bridge.set_light(self.device_list[device_id]['address'], 'bri', new_value)
+                set = self.bridge.set_light(self.device_list[device_id]['address'], 'bri', new_value)
                 if "success" in set:
                     if set.index("success") != -1:
                         status = True
@@ -192,7 +188,7 @@ class HueManager(Plugin):
                 except:
                     # We ignore the message if some values are not correct
                     self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
-                set = bridge.set_light(self.device_list[device_id]['address'], 'on', self.from_dt_switch_to_off_on(sensors[self.sensors[device_id]['light']]))
+                set = self.bridge.set_light(self.device_list[device_id]['address'], 'on', self.from_dt_switch_to_off_on(sensors[self.sensors[device_id]['light']]))
                 if "success" in set:
                     if set.index("success") != -1:
                         status = True
@@ -200,7 +196,7 @@ class HueManager(Plugin):
                         status = False
             elif command == "send_alert":
                 self.log.debug(u"Sending alert on device %s" % str(self.device_list[device_id]['address']))
-                set = bridge.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
+                set = self.bridge.set_light(self.device_list[device_id]['address'], 'alert', 'lselect')
                 if "success" in set:
                     if set.index("success") != -1:
                         status = True
