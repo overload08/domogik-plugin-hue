@@ -39,6 +39,8 @@ import threading
 import traceback
 from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
+from domogik_packages.plugin_weather.lib.rgb_xy import ColorHelper
+from domogik_packages.plugin_weather.lib.rgb_xy import Converter
 from phue import Bridge
 import time
 import os
@@ -210,6 +212,16 @@ class HueManager(Plugin):
                         status = True
                     else:
                         status = False
+            elif command == "set_hue":
+                sensors[self.sensors[device_id]['hue']] = data['hue']
+                new_value = Converter.hex_to_xy(data['hue'])
+                self.log.debug(u"Set hue to '%s'" % new_value)
+                if "success" in set:
+                    if set.index("success") != -1:
+                        status = True
+                    else:
+                        status = False
+
 
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name)

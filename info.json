@@ -102,7 +102,7 @@
                 "hue": {
                         "name": "Color",
                         "incremental": false,
-                        "data_type": "DT_Number",
+                        "data_type": "DT_RGBHexa",
                         "conversion": "",
                         "timeout": 600,
                         "history": {
@@ -148,7 +148,7 @@
                         "return_confirmation": true,
                         "parameters": [{
                                 "key": "current",
-                                "data_type": "DT_Scaling",
+                                "data_type": "DT_RGBHexa",
                                 "conversion": ""
                         }]
                 }
