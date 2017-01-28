@@ -147,7 +147,7 @@
                         "name": "Set HUE",
                         "return_confirmation": true,
                         "parameters": [{
-                                "key": "current",
+                                "key": "hue",
                                 "data_type": "DT_ColorRGBHexa",
                                 "conversion": ""
                         }]

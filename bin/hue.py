@@ -39,8 +39,8 @@ import threading
 import traceback
 from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
-from domogik_packages.plugin_weather.lib.rgb_xy import ColorHelper
-from domogik_packages.plugin_weather.lib.rgb_xy import Converter
+from domogik_packages.plugin_hue.lib.rgb_xy import ColorHelper
+from domogik_packages.plugin_hue.lib.rgb_xy import Converter
 from phue import Bridge
 import time
 import os
