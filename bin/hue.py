@@ -39,8 +39,8 @@ import threading
 import traceback
 from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
-from domogik_packages.plugin_hue.lib.rgb_xy import ColorHelper
-from domogik_packages.plugin_hue.lib.rgb_xy import Converter
+#from domogik_packages.plugin_hue.lib.rgb_xy import ColorHelper
+#from domogik_packages.plugin_hue.lib.rgb_xy import Converter
 from phue import Bridge
 import time
 import os
@@ -123,6 +123,7 @@ class HueManager(Plugin):
                 status = self.bridge.get_light(lamp_id, 'on')
                 brightness = int(float(self.bridge.get_light(lamp_id, 'bri')/254.00*100.00))
                 reachable = self.bridge.get_light(lamp_id, 'reachable')
+                #hue = self.bridge.get_light(lamp_id, 'hue')
             except:
                 self.log.debug(u"Unable to get device information for id " + str(device_id))
             data[self.sensors[device_id]['light']] = self.from_off_on_to_dt_switch(status)
@@ -135,6 +136,7 @@ class HueManager(Plugin):
                 self.sensors_values[self.sensors[device_id]['brightness']] = brightness
             data[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
             self.sensors_values[self.sensors[device_id]['reachable']] = self.from_off_on_to_dt_switch(reachable)
+            #self.sensors_values[self.sensors[device_id]['hue']] = 
             try:
                 if (data != old_data) or (time.time() - previous_time >= interval):
                     self.log.info(u"==> Lamp '%s' state '%s', brightness '%s', reachable '%s'" % (lamp_id, status, brightness, reachable))

@@ -21,9 +21,9 @@
 	}],
 	"device_types": {
 		"hue.white": {
-			"description": "White",
+			"description": "Hue White",
 			"id": "hue.white",
-			"name": "White",
+			"name": "Hue White",
 			"commands": [
 				"set_brightness",
 				"set_on",
@@ -31,16 +31,16 @@
 			],
 			"sensors": ["light", "brightness", "reachable"],
 			"parameters": [{
-				"key": "Device",
+				"key": "Device"
 				"xpl": false,
 				"description": "Device ID",
 				"type": "integer"
 			}]
 		},
-                "hue.rgb": {
-                        "description": "RGB",
-                        "id": "hue.rgb",
-                        "name": "RGB",
+                "hue.go": {
+                        "description": "Hue Go",
+                        "id": "hue.go",
+                        "name": "Hue Go",
                         "commands": [
                                 "set_brightness",
                                 "set_on",
@@ -49,10 +49,16 @@
                         ],
                         "sensors": ["light", "brightness", "reachable", "hue"],
                         "parameters": [{
-                                "key": "Device",
+                                "key": "Device"
                                 "xpl": false,
                                 "description": "Device ID",
                                 "type": "integer"
+                        },
+			{
+                                "key": "Gammut"
+                                "xpl": false,
+                                "description": "Gammut of device (A, B, C)",
+                                "type": "string"
                         }]
                 }
 	},
