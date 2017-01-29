@@ -31,7 +31,7 @@
 			],
 			"sensors": ["light", "brightness", "reachable"],
 			"parameters": [{
-				"key": "Device"
+				"key": "Device",
 				"xpl": false,
 				"description": "Device ID",
 				"type": "integer"
@@ -49,13 +49,13 @@
                         ],
                         "sensors": ["light", "brightness", "reachable", "hue"],
                         "parameters": [{
-                                "key": "Device"
+                                "key": "Device",
                                 "xpl": false,
                                 "description": "Device ID",
                                 "type": "integer"
                         },
 			{
-                                "key": "Gammut"
+                                "key": "Gammut",
                                 "xpl": false,
                                 "description": "Gammut of device (A, B, C)",
                                 "type": "string"
