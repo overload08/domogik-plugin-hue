@@ -1,0 +1,19 @@
+{% extends theme("base/base.html") %}
+{% import theme("base/wtf.html") as wtf %}
+
+{% block content %}
+{% include theme("client_menu.html") %}
+<div class="container">
+<h2>{% trans %}Philips Hue - Wizard{% endtrans %}</H2>
+Etape 1 : Detection du Brige Hue
+<pre>
+Bridge : {{ bridge }}
+</pre>
+<center>
+{% if bridge != "Aucun bridge trouve" %}
+Veuillez appuyer le bouton d'association de votre Bridge Hue.<br>
+Vous aurez alors 30 secondes pour passer a l'etape suivante.<br>
+<button onclick="window.location.href = window.location.href + '/{{ bridge }}'">Suivant</button>{% endif %}
+</center>
+</div>
+{% endblock %}

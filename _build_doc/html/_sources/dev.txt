@@ -1,0 +1,12 @@
+========================
+Development informations
+========================
+
+Timeout on sensors
+==================
+
+The timeout is set to 600 for all sensors : as the interval between 2 checks is a global parameter, we can't set a proper default timeout. If needed, the timeout should be set manually by the user for this plugin.
+
+There is no xPL schema on this plugin.
+
+

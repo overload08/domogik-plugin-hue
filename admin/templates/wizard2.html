@@ -1,0 +1,29 @@
+{% extends theme("base/base.html") %}
+{% import theme("base/wtf.html") as wtf %}
+
+{% block content %}
+{% include theme("client_menu.html") %}
+<script>
+function testlight(id){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange=function() {
+      if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+        var response = xmlhttp.responseText; //if you need to do something with the returned value
+      }
+    }
+
+    xmlhttp.open("GET",window.location.href + '/test/' + id,true);
+    xmlhttp.send();
+}
+</script>
+<div class="container">
+<h2>{% trans %}Philips Hue - Wizard{% endtrans %}</H2>
+Etape 2 : Detection des lampes et groupes
+<br>
+{{ hue|safe }}
+<center>
+<button type="submit">Suivant</button>
+</center>
+</form>
+</div>
+{% endblock %}

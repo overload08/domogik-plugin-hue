@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Rest URL API &#8212; Domogik  documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Domogik  documentation" href="index.html" />
+    <link rel="next" title="Development informations" href="dev.html" />
+    <link rel="prev" title="Plugin Hue" href="hue.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        Domogik  documentation
+    </a></h1></header>
+  <div class="related top">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="hue.html" title="Previous document">Plugin Hue</a>
+        </li>
+        <li>
+          <a href="dev.html" title="Next document">Development informations</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">Domogik  documentation</a></li> 
+    </ul>
+  </nav>
+  </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rest-url-api">
+<h1>Rest URL API<a class="headerlink" href="#rest-url-api" title="Permalink to this headline">¶</a></h1>
+<p>Allumer :                       curl -X PUT -d &#8216;{&#8220;on&#8221;:true}&#8217; &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1/state">http://10.0.0.10:8000/api/newdeveloper/lights/1/state</a>&#8221;
+Eteindre :                      curl -X PUT -d &#8216;{&#8220;on&#8221;:false}&#8217; &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1/state">http://10.0.0.10:8000/api/newdeveloper/lights/1/state</a>&#8221;
+Bright :                        curl -X PUT -d &#8216;{&#8220;bri&#8221;:&#8216;128&#8217;}&#8217; &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1/state">http://10.0.0.10:8000/api/newdeveloper/lights/1/state</a>&#8221;
+Statut :        ON/OFF :        curl -X GET -s &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1">http://10.0.0.10:8000/api/newdeveloper/lights/1</a>&#8221; <a href="#id1"><span class="problematic" id="id2">|</span></a>cut -d, -f1 <a href="#id3"><span class="problematic" id="id4">|</span></a>cut -d{ -f3 <a href="#id5"><span class="problematic" id="id6">|</span></a>cut -d: -f2</p>
+<blockquote>
+<div>Reachable :     curl -X GET -s &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1">http://10.0.0.10:8000/api/newdeveloper/lights/1</a>&#8221; <a href="#id7"><span class="problematic" id="id8">|</span></a>cut -d, -f11 <a href="#id9"><span class="problematic" id="id10">|</span></a>cut -d: -f2 <a href="#id11"><span class="problematic" id="id12">|</span></a>sed &#8216;s/}//&#8217;
+Name :          curl -X GET -s &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1">http://10.0.0.10:8000/api/newdeveloper/lights/1</a>&#8221; <a href="#id13"><span class="problematic" id="id14">|</span></a>cut -d, -f13 <a href="#id15"><span class="problematic" id="id16">|</span></a>cut -d: -f2 <a href="#id17"><span class="problematic" id="id18">|</span></a>sed &#8216;s/}//&#8217;
+Model :         curl -X GET -s &#8220;<a class="reference external" href="http://10.0.0.10:8000/api/newdeveloper/lights/1">http://10.0.0.10:8000/api/newdeveloper/lights/1</a>&#8221; <a href="#id19"><span class="problematic" id="id20">|</span></a>cut -d, -f14 <a href="#id21"><span class="problematic" id="id22">|</span></a>cut -d: -f2 <a href="#id23"><span class="problematic" id="id24">|</span></a>sed &#8216;s/}//&#8217;</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hue.html"
+                        title="previous chapter">Plugin Hue</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dev.html"
+                        title="next chapter">Development informations</a></p>
+<div class="sourcelink">
+  <a href="_sources/url.txt" rel="nofollow">
+    Show page source
+  </a>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="related bottom">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="hue.html" title="Previous document">Plugin Hue</a>
+        </li>
+        <li>
+          <a href="dev.html" title="Next document">Development informations</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">Domogik  documentation</a></li> 
+    </ul>
+  </nav>
+  </div>
+  <footer id="pagefooter">&copy; 2015, Domogik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.4.9
+        with the <a href="http://github.com/irskep/sphinx-better-theme">
+          better</a> theme.
+
+  </footer>
+
+  
+  </body>
+</html>

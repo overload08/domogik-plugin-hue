@@ -37,6 +37,19 @@
 				"type": "integer"
 			}]
 		},
+                "hue.group": {
+                        "description": "Group Hue",
+                        "id": "hue.group",
+                        "name": "Group Hue",
+                        "commands": ["set_group_on"],
+                        "sensors": ["light"],
+                        "parameters": [{
+                                "key": "Device",
+                                "xpl": false,
+                                "description": "Device ID",
+                                "type": "integer"
+                        }]
+                },
                 "hue.go": {
                         "description": "Hue Go",
                         "id": "hue.go",
@@ -140,6 +153,15 @@
 				"conversion": ""
 			}]
 		},
+                "set_group_on": {
+                        "name": "Set ON",
+                        "return_confirmation": true,
+                        "parameters": [{
+                                "key": "switch",
+                                "data_type": "DT_Switch",
+                                "conversion": ""
+                        }]
+                },
                 "send_alert": {
                         "name": "Send alert",
                         "return_confirmation": true,

@@ -1,0 +1,42 @@
+.. _index:
+
+===========
+Plugin Hue
+===========
+
+Purpose
+=======
+
+The Hue plugin is used to control Hue lights.
+
+Dependencies
+============
+
+pip install phue
+
+Plugin configuration
+====================
+
+IP address of Hue Bridge
+
+Before launch the plugin
+========================
+
+Before start Hue plugin, press association button on your bridge and go to Admin -> Plugin Hue -> Advanced
+If you see your lamps, association is ok!
+
+Create the domogik devices
+==========================
+
+Help you with Advanced page to create all your devices. You need to write name and light ID.
+
+Start the plugin
+================
+
+You can now start the plugin (start button) and use the created domogik devices.
+
+Set up your widgets on the user interface
+=========================================
+
+You can now place the widgets of your devices features on the user interface.
+

@@ -4,10 +4,12 @@
 {% block content %}
 {% include theme("client_menu.html") %}
 <div class="container">
-<h2>{% trans %}Result of the Philips Hue scan{% endtrans %}</H2>
-<pre>{{ hue }}</pre>
+<h2>{% trans %}Philips Hue - Wizard{% endtrans %}</H2>
+Etape 3 : Creation des lampes et groupes
+<br>
+{{ hue|safe }}
 <center>
-<button onclick="window.location.href = window.location.href + '/wizard'">Configuration</button>
 </center>
+</form>
 </div>
 {% endblock %}

@@ -79,11 +79,13 @@ class HueManager(Plugin):
             self.force_leave()
         self.device_list = {}
         for a_device in self.devices:
-            device_name = a_device["name"]
-            device_id = a_device["id"]
-            lamp_id = int(self.get_parameter(a_device, "Device"))
-            self.device_list.update({device_id : {'name': device_name, 'address': lamp_id}})
-            self.launch_thread(a_device)
+	    if a_device["device_type_id"] != "hue.group":
+		self.log.info("Device type : " + a_device["device_type_id"])
+                device_name = a_device["name"]
+                device_id = a_device["id"]
+                lamp_id = int(self.get_parameter(a_device, "Device"))
+                self.device_list.update({device_id : {'name': device_name, 'address': lamp_id}})
+                self.launch_thread(device_id, lamp_id)
         self.register_cb_update_devices(self.launch_thread)
         self.ready()
 
@@ -103,12 +105,11 @@ class HueManager(Plugin):
         else:
             return 1
 
-    def launch_thread(self, a_device):
+    def launch_thread(self, device_id, lamp_id):
         huethreads = {}
-        lamp_id = int(self.get_parameter(a_device, "Device"))
-        thr_name = "dev_" + str(a_device["id"])
-        huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (a_device["id"], lamp_id, self.ip_bridge), {})
-        self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(a_device["id"]) +", lamp_id=" + str(lamp_id) + ", ip_bridge=" + self.ip_bridge)
+        thr_name = "dev_" + str(device_id) + "-" + str(lamp_id)
+        huethreads[thr_name] = threading.Thread(None, self.get_status, thr_name, (device_id, lamp_id, self.ip_bridge), {})
+        self.log.info(u"Starting thread" + thr_name + " with paramerters : device_id=" + str(device_id) +", lamp_id=" + str(lamp_id) + ", ip_bridge=" + self.ip_bridge)
         huethreads[thr_name].start()
         self.register_thread(huethreads[thr_name])
 
@@ -223,7 +224,19 @@ class HueManager(Plugin):
                         status = True
                     else:
                         status = False
-
+	    elif command == "set_group_on":
+                sensors[self.sensors[device_id]['light']] = data['switch']
+                try:
+                    self._pub.send_event('client.sensor', sensors)
+                except:
+                    # We ignore the message if some values are not correct
+                    self.log.debug(u"Bad MQ message to send. This may happen due to some invalid rainhour data. MQ data is : {0}".format(data))
+                set = self.bridge.set_group(self.device_list[device_id]['address'], 'on', self.from_dt_switch_to_off_on(sensors[self.sensors[device_id]['light']]))
+                if "success" in set:
+                    if set.index("success") != -1:
+                        status = True
+                    else:
+                        status = False
 
             # Reply MQ REP (acq) to REQ command
             self.send_rep_ack(status, reason, command_id, device_name)

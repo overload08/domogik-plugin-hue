@@ -1,0 +1,16 @@
+=========
+Changelog
+=========
+
+1.1
+===
+
+* Plugin improvement
+* Added alert command
+* Lamp list in Admin->Advanced
+
+1.0
+===
+
+* Plugin creation
+
