@@ -16,7 +16,7 @@ def create_device():
     client_id  = "plugin-{0}.{1}".format(plugin, get_sanitized_hostname())
     print "Creating the Hue device..."
     td = TestDevice()
-    params = td.get_params(client_id, "hue")
+    params = td.get_params(client_id, "hue.hue")
         # fill in the params
     params["device_type"] = "hue"
     params["name"] = DEVICE_NAME_MIRROR
